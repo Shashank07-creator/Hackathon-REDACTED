@@ -4,7 +4,8 @@ function generateWrapper(jsonString) {
     // jsonString = '{ "abc" : "value", "sbvObj" : { "abc3" : { "dsd" : "123" }}, "asdq" : [ {"fed" : "343" } ] }';
     //jsonString = '{ "abc" : "value", "sbvObj" : "123" }';
     // jsonString = '{ "id": "0001", "type": "donut", "name": "Cake", "ppu": 0.55, "batters": { "batter": [ { "id": "1001", "type": "Regular" }, { "id": "1002", "type": "Chocolate" }, { "id": "1003", "type": "Blueberry" }, { "id": "1004", "type": "Devil\'s Food" } ] }, "topping": [ { "id": "5001", "type": "None" }, { "id": "5002", "type": "Glazed" }, { "id": "5005", "type": "Sugar" }, { "id": "5007", "type": "Powdered Sugar" }, { "id": "5006", "type": "Chocolate with Sprinkles" }, { "id": "5003", "type": "Chocolate" }, { "id": "5004", "type": "Maple" } ] }'
-    jsonString = '{ "ERROR": { "ERRORCODE": null, "ERRORDESC": null, "ERRORSYSID": null }, "ISSUCCESS": "True", "RESPONSE": { "DATA": { "ESBRequestId": 1039142, "ErrorCode": "", "ErrorDescription": "", "IntegrationType": "POSIDEX", "IsSuccess": "true", "SchemeId": "", "SourceSystem": "SFDC", "loanToBeForeClosed": "", "LoanApplicationNo": "60000003518", "BusinessType": "Asset", "BusinessUnit": "UC", "MatchDetails" : [ "one", "two" ], "CustomersResponse": [ { "CustomerIdentifier": "a0ZC30000005OPtMAM", "ApplicantDecision": "APPROVE", "ApplicantRejectReason": null, "IsRefer": "N", "ProfileId": null, "AssignedCRN": "9903915065", "IsExistingCustomer": "N", "LoanApplicationNo": "60000003518", "AssignedUCIC": "", "TypeOfApplicant": "Applicant", "CustomerCategory": "Individual", "RequestId": null } ], "LoanDecision": "APPROVE", "LoanRejectReason": "", "IsRefer": "N" }, "PROCESSOR": null }, "RESPONSEID": "961023" }';
+    jsonString = '{ "ERROR": { "ERRORCODE": null, "ERRORDESC": null, "ERRORSYSID": null }, "ISSUCCESS": "True", "RESPONSE": { "DATA": { "ESBRequestId": 1039142, "ErrorCode": "", "ErrorDescription": "", "IntegrationType": "POSIDEX", "IsSuccess": "true", "SchemeId": "", "SourceSystem": "SFDC", "loanToBeForeClosed": "", "LoanApplicationNo": "60000003518", "BusinessType": "Asset", "BusinessUnit": "UC", "MatchDetails": [ "one", "two" ], "CustomersResponse": [ { "CustomerIdentifier": "a0ZC30000005OPtMAM", "ApplicantDecision": "APPROVE", "ApplicantRejectReason": null, "IsRefer": "N", "ProfileId": null, "AssignedCRN": "9903915065", "IsExistingCustomer": "N", "LoanApplicationNo": "60000003518", "AssignedUCIC": "", "TypeOfApplicant": "Applicant", "CustomerCategory": "Individual", "RequestId": null } ], "LoanDecision": "APPROVE", "LoanRejectReason": "", "IsRefer": "N" }, "PROCESSOR": null }, "RESPONSEID": "961023", "multiarraystring": [ [ [ "one", "two" ] ] ], "multiarrayobject": [ [ { "abc": 12, "floatval" : 23.4, "def": "fwdf" } ] ] }';
+    // jsonString = '{"impacted_stamps": [{ "stamp_paper_1": "stamp_denomination", "stamp_paper_2": "stamp_denomination" }]}'
     console.log(JSON.parse(jsonString));
     let className = 'GeneratedWrapper';
     let classText = `\npublic class ${className} {\n`;
@@ -15,7 +16,7 @@ function generateWrapper(jsonString) {
     classText += '\n}';
     console.log(classText);
 }
-    
+
 function generateClass(jsonString, inner = false) {
     let objMap;
     try {
@@ -51,6 +52,27 @@ function generateAtrributes(key, value, inner = false) {
         let firstValueType = typeof(firstValue)
         if(firstValueType === 'string') {
             return `${inner ? '\t\t' : '\t'}public List<String> ${key};\n`;
+        } else if(Array.isArray(firstValue)) {
+            let attribute = ''
+            let count = 0
+            while(Array.isArray(firstValue)) {
+                firstValue = firstValue[0]
+                count++
+                attribute += 'List<'
+            }
+            if(typeof(firstValue) !== 'object') {
+                attribute += getDataTypeForValue(firstValue)
+            } else {
+                attribute += `cls_${key}`
+                definitionclassText += generateClass(firstValue, true);
+                definitionclassText += '\t}';
+                classDefinitions.push(definitionclassText);
+            }
+            while(count > 0){
+                attribute += '>'
+                count--
+            }
+            return `${inner ? '\t\t' : '\t'}public List<${attribute}> ${key};\n`;
         }
         definitionclassText += generateClass(firstValue, true);
         definitionclassText += '\t}';
@@ -71,8 +93,15 @@ function isParseableAsArray(value) {
 }
 
 function getDataTypeForValue(value) {
-    if(typeof(value) === 'number') {
-        return 'Integer'
+    let type = typeof(value)
+    if(type === 'number') {
+        if(Math.floor(value) === Math.ceil(value))
+            return 'Integer'
+        else
+            return 'Double'
+    }
+    if(type === 'boolean') {
+        return 'Boolean'
     }
     return 'String'
 }
