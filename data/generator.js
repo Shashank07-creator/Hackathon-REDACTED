@@ -12,7 +12,7 @@ function generateWrapper(jsonString) {
     console.log(classText);
 }
     
-function generateClass(jsonString) {
+function generateClass(jsonString, inner = false) {
     let objMap;
     try {
         objMap = JSON.parse(jsonString);
@@ -22,26 +22,30 @@ function generateClass(jsonString) {
     let classText = '';
     for(let key in objMap) {
         let value = objMap[`${key}`];
-        classText += generateAtrributes(key, JSON.stringify(value));
+        classText += generateAtrributes(key, JSON.stringify(value), inner);
     }
     return classText;
 }
     
-function generateAtrributes(key, value) {
+function generateAtrributes(key, value, inner = false) {
     let isValue = !isParseableAsObject(value) && !isParseableAsArray(value);
     if(isValue) {
-        return '\tpublic String ' + key + ';\n';
+        return `${inner ? '\t\t' : '\t'}public String ${key};\n`;
     }
     if(isParseableAsObject(value)) {
         //definiton of inner class
         let definitionclassText = '\n\tpublic class ' + 'cls_' + key  + ' {\n';
-        definitionclassText = generateClass(value);
-        definitionclassText += '}';
+        definitionclassText += generateClass(value, true);
+        definitionclassText += '\t}';
         classDefinitions.push(definitionclassText);
-        return '\tpublic cls_' + key + ' ' + key + ';\n';
+        return `${inner ? '\t\t' : '\t'}public cls_${key} ${key};\n`;
     }
     if(isParseableAsArray(value)) {
-        return '\tpublic List<cls_' + key + '>' + key + ';\n';
+        let definitionclassText = '\n\tpublic class ' + 'cls_' + key  + ' {\n';
+        definitionclassText += generateClass(JSON.stringify(JSON.parse(value)[0]), true);
+        definitionclassText += '\t}';
+        classDefinitions.push(definitionclassText);
+        return `${inner ? '\t\t' : '\t'}public List<cls_${key}> ${key};\n`;
     }
     return null;
 }
