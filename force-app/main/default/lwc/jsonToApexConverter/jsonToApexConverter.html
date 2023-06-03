@@ -1,0 +1,22 @@
+<template>
+   <section class="container">
+      <div class="left_box box">
+         <div class="slds-m-around_medium">
+            <textarea rows="20" cols="50" placeholder="Enter JSON here ..." id="jsonString" onchange={handleChange}></textarea>
+         </div>
+      </div>
+      <div class="right_box box">
+         <div class="slds-m-around_medium">
+            <textarea rows="20" cols="50" placeholder="Converted Apex ..." id="ApexWrapper">{apexWrapper}</textarea>
+         </div>
+      </div>
+      </section>
+      <section class = "options-container">
+         <label for="AuraEnabled">AuraEnabled</label>
+         <input type="checkbox" name="AuraEnabled" id="auraenabled">
+         <label for="Constructor">Constructor</label>
+         <input type="checkbox" name="Constructor" id="constructor">
+         <button onclick={handleConversion}> Convert </button>
+      </section>
+   <!-- </div> -->
+</template>

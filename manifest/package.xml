@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
-    <types>
+	<types>
         <members>WrapperGenerator</members>
         <name>ApexClass</name>
     </types>
-    <version>57.0</version>
+	<types>
+		<members>jsonToApexConverter</members>
+		<name>LightningComponentBundle</name>
+	</types>
+	<types>
+		<members>Generator</members>
+		<name>StaticResource</name>
+	</types>
+	<version>57.0</version>
 </Package>

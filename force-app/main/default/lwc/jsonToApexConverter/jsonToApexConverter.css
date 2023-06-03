@@ -1,0 +1,43 @@
+:host { /* Change some of the controlling parameters from here */
+    --side_margins : 4%; /* Defines space from windows left and right sides to each of the boxes*/
+}
+
+.container{
+    position:relative;
+    top:5%;
+    width:100vw;
+    height:80vh;
+}
+
+textarea {
+    font-size:x-large;
+    padding-left:2.5%;
+    padding-top:2.5%;
+    padding-bottom:2.5%;
+    resize:none;
+    overflow-y:scroll;
+}
+
+.box{
+    position:relative;
+}
+
+.left_box {
+    float:left;
+    left:var(--side_margins);
+}
+
+.right_box{
+    float:right;
+    right:var(--side_margins);
+}
+
+.options-container {
+    display:block;
+    position:relative;
+}
+
+input {
+    margin-right:2%;
+    padding:2%;
+}
